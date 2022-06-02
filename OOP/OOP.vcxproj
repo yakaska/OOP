@@ -129,7 +129,11 @@
   <ItemGroup>
     <ClCompile Include="Application_Class.cpp" />
     <ClCompile Include="Base_Class.cpp" />
-    <ClCompile Include="Child.cpp" />
+    <ClCompile Include="Child2.cpp" />
+    <ClCompile Include="Child3.cpp" />
+    <ClCompile Include="Child4.cpp" />
+    <ClCompile Include="Child5.cpp" />
+    <ClCompile Include="Child6.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Nod_Class.cpp" />
     <ClCompile Include="Util.cpp" />
@@ -137,7 +141,11 @@
   <ItemGroup>
     <ClInclude Include="Application_Class.h" />
     <ClInclude Include="Base_Class.h" />
-    <ClInclude Include="Child.h" />
+    <ClInclude Include="Child2.h" />
+    <ClInclude Include="Child3.h" />
+    <ClInclude Include="Child4.h" />
+    <ClInclude Include="Child5.h" />
+    <ClInclude Include="Child6.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="Nod_Class.h" />
     <ClInclude Include="resource.h" />

@@ -6,12 +6,18 @@ using namespace std;
 #include <iostream>
 #include "Base_Class.h"
 #include "Nod_Class.h"
-#include "Child.h"
+#include "Child2.h"
+#include "Child3.h"
+#include "Child4.h"
+#include "Child5.h"
+#include "Child6.h"
 class Application_Class : public Base_Class
 {
 public:
-	Application_Class(string name = "") :Base_Class(name) {};
+	Application_Class(Base_Class*);
 	void Build_Tree();
 	int Exec_App();
+	void Signal(string&);
+	void Handler(const string);
 };
 #endif

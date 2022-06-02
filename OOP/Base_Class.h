@@ -1,34 +1,34 @@
 #ifndef BASE_CLASS_H
 #define BASE_CLASS_H
 
-class Base_Class;
-typedef void(*Signal)(string&);
-typedef void(*Handler)(Base_Class*, string& Str);
-#define SIGNAL(S_Signal) ((Signal) (&S_Signal))
-#define HANDLER(S_Handler) ((Hanlder) (&S_Handler))
-
 #include <string>
 #include <vector>
 #include <iostream>
 using namespace std;
 
+class Base_Class;
+typedef void (Base_Class::*Object_Signal)(string&);
+typedef void (Base_Class::*Object_Handler)(const string);
+#define SIGNAL(_Signal) ((Object_Signal)(&_Signal))
+#define HANDLER(_Handler) ((Object_Handler)(&_Handler))
+
+struct Connection // Структура задания одной связи
+{
+	Object_Signal Signal; // Указатель на метод сигнала
+	Base_Class* Connected_Object; // Указатель на второй объект
+	Object_Handler Handler; // Указатель на метод обработчика
+};
+
 class Base_Class
 {
 	protected:
-		struct Connection // Структура задания одной связи
-		{
-			Signal P_Signal; // Указатель на метод сигнала
-			Base_Class* P_Base_Class; // Указатель на второй объект
-			Handler P_Handler; // Указатель на метод обработчика
-		};
-
 		static Base_Class* Current_Object;
-		string Object_Name;
-		Base_Class* Root_Ptr;
-		int status;
 		vector<Base_Class*> Slave_Vec;
 		vector<Connection> Connections_Vec; //added
-		
+		Base_Class* Root_Ptr;
+		string Object_Name;
+		int Status;
+		int Class_Number;
 	public:
 
 		Base_Class(string dObject_Name, Base_Class* dRoot_Ptr = nullptr);
@@ -43,7 +43,7 @@ class Base_Class
 		Base_Class* Get_Root_Ptr();
 		Base_Class* Get_Root();
 		Base_Class* Get_Object(string name);
-		void Set_Status(int status);
+		void Set_Status(int Status);
 		int Get_Status();
 
 		Base_Class* Find_Object_By_Name(string dObject_Name);
@@ -52,9 +52,12 @@ class Base_Class
 		void Set_Current(Base_Class* dCurrent);
 		Base_Class* Get_Current();
 
-		void Set_Connection(Signal P_Signal , Base_Class* P_Object, Handler P_Object_Handler);
-		void Delete_Connection(Signal P_Signal, Base_Class* P_Object, Handler P_Object_Handler);
-		void Emit_Signal(Signal P_Signal, string& Command);
+		int Get_Class_Number();
+		void Set_Connection(Object_Signal, Base_Class*, Object_Handler);
+		void Delete_Connection(Object_Signal, Base_Class*, Object_Handler);
+		void Emit_Signal(Object_Signal, string&);
+		void Set_Ready_All();
+		string Get_Absolute_Path(); //added
 
 };
 #endif

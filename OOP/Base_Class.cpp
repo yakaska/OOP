@@ -165,7 +165,7 @@ void Base_Class::Set_Status(int a)
 {
 	if (!a)
 	{
-		status = 0;
+		Status = 0;
 		for (int i = 0; i < Slave_Vec.size(); i++)
 		{
 			Slave_Vec[i]->Set_Status(0);
@@ -173,13 +173,13 @@ void Base_Class::Set_Status(int a)
 	}
 	else if (Root_Ptr == nullptr || Root_Ptr->Get_Status())
 	{
-		status = a;
+		Status = a;
 	}
 }
 
 int Base_Class::Get_Status()
 {
-	return status;
+	return Status;
 }
 
 void Base_Class::Set_Current(Base_Class* dCurrent)
@@ -192,39 +192,78 @@ Base_Class* Base_Class::Get_Current()
 	return Current_Object;
 }
 
-void Base_Class::Set_Connection(Signal P_Signal, Base_Class* P_Object, Handler P_Object_Handler)
+string Base_Class::Get_Absolute_Path() 
 {
-	for (Connection c : Connections_Vec)
+	string dPath = "";
+	Base_Class* dPtr = this;
+	while (dPtr->Get_Root_Ptr() != nullptr)
 	{
-		if (c.P_Signal == P_Signal && c.P_Handler == P_Object_Handler && c.P_Base_Class == P_Object)
-			return;
+		dPath = "/" + dPtr->Get_Object_Name() + dPath;
+		dPtr = dPtr->Get_Root_Ptr();
 	}
-	Connection c = { P_Signal, P_Object, P_Object_Handler };
-	Connections_Vec.push_back(c);
+	if (dPath.empty()) dPath = "/";
+	return dPath;
 }
 
-void Base_Class::Delete_Connection(Signal P_Signal, Base_Class* P_Object, Handler P_Object_Handler)
+void Base_Class::Set_Connection(Object_Signal Signal, Base_Class* Connecting_Object, Object_Handler Handler)
 {
-	for (auto i = Connections_Vec.begin(); i != Connections_Vec.end(); i++)
+	for (int i = 0; i < Connections_Vec.size(); i++)
 	{
-		if (i->P_Signal == P_Signal && i->P_Handler == P_Object_Handler && i->P_Base_Class == P_Object)
+		if (Connections_Vec[i].Signal == Signal
+			&& Connections_Vec[i].Connected_Object == Connecting_Object
+			&& Connections_Vec[i].Handler == Handler)
 		{
-			Connections_Vec.erase(i);
+			   return;
+		}
+	}
+	Connection Con;
+	Con.Signal = Signal;
+	Con.Connected_Object = Connecting_Object;
+	Con.Handler = Handler;
+	Connections_Vec.push_back(Con);
+}
+
+void Base_Class::Delete_Connection(Object_Signal Signal, Base_Class* Removing_Object, Object_Handler Handler)
+{
+	for (int i = 0; i < Connections_Vec.size(); i++)
+	{
+		if ((Connections_Vec[i].Signal == Signal)
+			&& (Connections_Vec[i].Connected_Object == Removing_Object)
+			&& (Connections_Vec[i].Handler == Handler))
+		{
+			Connections_Vec.erase(Connections_Vec.begin() + i);
 			return;
+		}
+ 	}
+}
+
+void Base_Class::Emit_Signal(Object_Signal Signal, string& Message)
+{
+	if (this->Status == 0)
+	{
+		return;
+	}
+	(this->*(Signal))(Message);
+	for (int i = 0; i < Connections_Vec.size(); i++)
+	{
+		if (Connections_Vec[i].Signal == Signal
+			&& Connections_Vec[i].Connected_Object->Get_Status() != 0)
+		{
+			((Connections_Vec[i].Connected_Object)->*(Connections_Vec[i].Handler))(Message);
 		}
 	}
 }
 
-void Base_Class::Emit_Signal(Signal P_Signal, string& Command)
+void Base_Class::Set_Ready_All()
 {
-	for (auto connect : Connections_Vec)
+	this->Set_Status(1);
+	for (int i = 0; i < Slave_Vec.size(); i++)
 	{
-		if (Connections_Vec.empty())
-			return;
-		if (connect.P_Signal == P_Signal)
-		{
-			connect.P_Handler(connect.P_Base_Class, this->Object_Name);
-			P_Signal(Command);
-		}
+		Slave_Vec[i]->Set_Ready_All();
 	}
+}
+
+int Base_Class::Get_Class_Number()
+{
+	return Class_Number;
 }
